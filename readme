@@ -45,76 +45,85 @@ To create a meeting, send a POST request to `/zoom/create_meeting` with the foll
 Example:
 ```sh
 curl -X POST http://localhost:3000/zoom/create_meeting -d "topic=My Meeting" -d "start_time=2023-10-01T10:00:00Z"
+```
 
+### Listing Meetings
 
-# Listing Meetings
-To list all meetings for the current user, send a GET request to /zoom/list_meetings.
+To list all meetings for the current user, send a GET request to `/zoom/list_meetings`.
 
 Example:
+```sh
+curl -X GET http://localhost:3000/zoom/list_meetings
+```
 
-Adding a User
-To add a new user to Zoom, send a POST request to /zoom/add_user with the following parameters:
+### Adding a User
 
-email: The email of the user
-first_name: The first name of the user
-last_name: The last name of the user
+To add a new user to Zoom, send a POST request to `/zoom/add_user` with the following parameters:
+- `email`: The email of the user
+- `first_name`: The first name of the user
+- `last_name`: The last name of the user
+
 Example:
+```sh
 curl -X POST http://localhost:3000/zoom/add_user -d "email=user@example.com" -d "first_name=John" -d "last_name=Doe"
+```
 
+### Handling Webhook Events
 
-Handling Webhook Events
-To handle Zoom webhook events, set up a POST request to /zoom/webhook. This will handle events such as recording.completed and update the meeting with the recording URL.
+To handle Zoom webhook events, set up a POST request to `/zoom/webhook`. This will handle events such as `recording.completed` and update the meeting with the recording URL.
 
-Models
-User
+## Models
+
+### User
+
 The User model includes the following fields:
+- `email`: The email of the user
+- `zoom_user_id`: The Zoom user ID
 
-email: The email of the user
-zoom_user_id: The Zoom user ID
-Meeting
+### Meeting
+
 The Meeting model includes the following fields:
+- `user`: Reference to the user who created the meeting
+- `topic`: The topic of the meeting
+- `start_time`: The start time of the meeting
+- `duration`: The duration of the meeting
+- `recording_url`: The URL of the meeting recording
 
-user: Reference to the user who created the meeting
-topic: The topic of the meeting
-start_time: The start time of the meeting
-duration: The duration of the meeting
-recording_url: The URL of the meeting recording
+## Configuration
 
+### Zoom API Configuration
 
-Configuration
-Zoom API Configuration
-The Zoom API is configured in config/initializers/zoom.rb using the API key and secret from environment variables.
+The Zoom API is configured in `config/initializers/zoom.rb` using the API key and secret from environment variables.
 
+```ruby
 Zoom.configure do |c|
     c.api_key = ENV['ZOOM_API_KEY']
     c.api_secret = ENV['ZOOM_API_SECRET']
 end
+```
 
-Routes
-The following routes are defined in routes.rb:
+### Routes
 
+The following routes are defined in `routes.rb`:
+
+```ruby
 Rails.application.routes.draw do
     post 'zoom/create_meeting', to: 'zoom#create_meeting'
     get 'zoom/list_meetings', to: 'zoom#list_meetings'
     post 'zoom/add_user', to: 'zoom#add_user'
     post 'zoom/webhook', to: 'zoom#webhook'
 end
+```
 
+## Controllers
 
-Controllers
-ZoomController
+### ZoomController
+
 The ZoomController handles the Zoom-related actions.
 
-create_meeting
-Creates a new Zoom meeting and saves the meeting details to the database.
+- `create_meeting`: Creates a new Zoom meeting and saves the meeting details to the database.
+- `list_meetings`: Lists all Zoom meetings for the current user.
+- `add_user`: Adds a new user to Zoom. Checks if the email is already registered before creating a new user.
+- `webhook`: Handles Zoom webhook events, such as `recording.completed`, and updates the meeting with the recording URL.
 
-list_meetings
-Lists all Zoom meetings for the current user.
-
-add_user
-Adds a new user to Zoom. Checks if the email is already registered before creating a new user.
-
-webhook
-Handles Zoom webhook events, such as recording.completed, and updates the meeting with the recording URL.
-
-License
+## License
